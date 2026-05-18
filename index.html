@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Say the Word on Beat - 雙功能後台版</title>
+  <title>Say the Word on Beat - 完整控制版</title>
   <link rel="shortcut icon" href="./images/speaker.webp" type="image/x-icon">
   <link rel="stylesheet" href="./style.css">
   <link href="https://googleapis.com" rel="stylesheet">
@@ -57,8 +57,11 @@
       </div>
     </section>
     
-    <div class="control-area">
-      <button id="play-btn">開始挑戰 Start</button>
+    <!-- 按鈕控制區 -->
+    <div class="control-area" id="frontend-controls">
+      <button id="start-btn" class="game-action-btn primary-btn">開始挑戰 Start</button>
+      <button id="pause-btn" class="game-action-btn secondary-btn hidden">暫停 Pause</button>
+      <button id="stop-btn" class="game-action-btn danger-btn hidden">停止 Stop</button>
     </div>
   </main>
 
@@ -71,7 +74,6 @@
       <button id="tab-images" class="tab-btn">🖼️ Sheet 2: 關卡與照片 (Images)</button>
     </div>
 
-    <!-- Sheet 1: 音樂設定 -->
     <div id="sheet-content-audio" class="sheet-content">
       <div class="input-group">
         <label>Catbox 背景音樂網址 (.mp3)：</label>
@@ -79,7 +81,6 @@
       </div>
     </div>
 
-    <!-- Sheet 2: 關卡與照片 -->
     <div id="sheet-content-images" class="sheet-content hidden">
       <div id="levels-manager">
         <!-- 由 JS 生成關卡編輯區 -->
@@ -87,7 +88,6 @@
       <button id="add-level-btn" class="sub-btn">➕ 新增一個全新主題關卡</button>
     </div>
 
-    <!-- 📢 核心更新：後台雙重儲存按鈕控制區 -->
     <div class="admin-actions" style="display: flex; flex-direction: column; gap: 10px;">
       <div style="display: flex; gap: 15px; width: 100%;">
         <button id="save-json-btn" class="save-btn" style="background: linear-gradient(45deg, #00f2fe, #4facfe);">💾 匯出下載 config.json (選項 A)</button>
