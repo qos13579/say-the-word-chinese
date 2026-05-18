@@ -1,0 +1,56 @@
+{
+  "audioUrl": "https://files.catbox.moe/9o67ad.mp3",
+  "levels": [
+    {
+      "title": "第一關：顏色繞口令",
+      "items": [
+        {
+          "text": "紅紅",
+          "url": "./images/level_1/hong.webp"
+        },
+        {
+          "text": "橘紅",
+          "url": "./images/level_1/ju.webp"
+        },
+        {
+          "text": "綠綠",
+          "url": "./images/level_1/lv.webp"
+        },
+        {
+          "text": "黃綠",
+          "url": "./images/level_1/huang.webp"
+        }
+      ]
+    },
+    {
+      "title": "第二關：諧音單槓",
+      "items": [
+        {
+          "text": "鋼彈",
+          "url": "./images/level_2/gundam.webp"
+        },
+        {
+          "text": "乾盪",
+          "url": "./images/level_2/gandang.webp"
+        },
+        {
+          "text": "單槓",
+          "url": "./images/level_2/dandang.webp"
+        }
+      ]
+    },
+    {
+      "title": "冠銘宛汝",
+      "items": [
+        {
+          "text": "冠銘",
+          "url": "https://files.catbox.moe/pzn2jw.webp"
+        },
+        {
+          "text": "宛汝",
+          "url": "https://files.catbox.moe/j9i86g.webp"
+        }
+      ]
+    }
+  ]
+}

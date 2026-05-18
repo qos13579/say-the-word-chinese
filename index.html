@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Say the Word on Beat - 雙功能後台版</title>
+  <link rel="shortcut icon" href="./images/speaker.webp" type="image/x-icon">
+  <link rel="stylesheet" href="./style.css">
+  <link href="https://googleapis.com" rel="stylesheet">
+</head>
+<body>
+
+  <!-- 右上角後台切換按鈕 -->
+  <button id="toggle-admin-btn" class="nav-btn">⚙️ 進入後台設定</button>
+
+  <!-- ==================== 前台：遊戲主畫面 ==================== -->
+  <main id="game-frontend">
+    <header id="game-header">
+      <h1>🎵 Say The Word On Beat 🎵</h1>
+      <div id="game-select-section">
+        <label for="game-select">主題：</label>
+        <select id="game-select">
+          <!-- 由 JS 動態生成 -->
+        </select> 
+        
+        <label for="difficulty-select" style="margin-left: 15px;">難度：</label>
+        <select id="difficulty-select">
+          <option value="easy" selected>🟢 簡易版 (1.0x)</option>
+          <option value="fast">🟡 加速版 (1.25x)</option>
+          <option value="speed">🟠 急速版 (1.5x)</option>
+          <option value="hell">🔴 地獄版 (2.0x)</option>
+        </select>
+      </div>
+    </header>
+    
+    <section id="level-section">準備開始...</section>
+    
+    <section id="images-section">
+      <img src="./images/exclamation-mark.webp" class="images-section__around-icon" alt="Exclamation mark" id="exclamation-mark-icon">
+      <img src="./images/speaker.webp" class="images-section__around-icon" alt="Speaker" id="speaker-icon">
+      <img src="./images/lightbulb.webp" class="images-section__around-icon" alt="Lightbulb" id="lightbulb-icon">
+      <img src="./images/lightnings.webp" class="images-section__around-icon" alt="Lightnings" id="lightnings-icon">
+
+      <div class="images">
+        <div class="images-row">
+          <div id="grid-0" class="beat-box"><span>1</span></div>
+          <div id="grid-1" class="beat-box"><span>2</span></div>
+          <div id="grid-2" class="beat-box"><span>3</span></div>
+          <div id="grid-3" class="beat-box"><span>4</span></div>
+        </div>
+        <div class="images-row">
+          <div id="grid-4" class="beat-box"><span>5</span></div>
+          <div id="grid-5" class="beat-box"><span>6</span></div>
+          <div id="grid-6" class="beat-box"><span>7</span></div>
+          <div id="grid-7" class="beat-box"><span>8</span></div>
+        </div>
+      </div>
+    </section>
+    
+    <div class="control-area">
+      <button id="play-btn">開始挑戰 Start</button>
+    </div>
+  </main>
+
+  <!-- ==================== 後台：管理面板 ==================== -->
+  <main id="game-backend" class="hidden">
+    <h2>🛠️ 遊戲內容自訂後台</h2>
+    
+    <div class="sheet-tabs">
+      <button id="tab-audio" class="tab-btn active">🎵 Sheet 1: 音樂設定 (Audio)</button>
+      <button id="tab-images" class="tab-btn">🖼️ Sheet 2: 關卡與照片 (Images)</button>
+    </div>
+
+    <!-- Sheet 1: 音樂設定 -->
+    <div id="sheet-content-audio" class="sheet-content">
+      <div class="input-group">
+        <label>Catbox 背景音樂網址 (.mp3)：</label>
+        <input type="text" id="custom-audio-url" placeholder="請貼上 https://catbox.moe">
+      </div>
+    </div>
+
+    <!-- Sheet 2: 關卡與照片 -->
+    <div id="sheet-content-images" class="sheet-content hidden">
+      <div id="levels-manager">
+        <!-- 由 JS 生成關卡編輯區 -->
+      </div>
+      <button id="add-level-btn" class="sub-btn">➕ 新增一個全新主題關卡</button>
+    </div>
+
+    <!-- 📢 核心更新：後台雙重儲存按鈕控制區 -->
+    <div class="admin-actions" style="display: flex; flex-direction: column; gap: 10px;">
+      <div style="display: flex; gap: 15px; width: 100%;">
+        <button id="save-json-btn" class="save-btn" style="background: linear-gradient(45deg, #00f2fe, #4facfe);">💾 匯出下載 config.json (選項 A)</button>
+        <button id="save-local-btn" class="save-btn" style="background: linear-gradient(45deg, #10b981, #059669); color: white;">⚡ 寫入瀏覽器快取 (選項 B)</button>
+      </div>
+      <button id="reset-admin-btn" class="reset-data-btn" style="width: 100%;">🔄 放棄修改 / 恢復設定</button>
+    </div>
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+</html>
