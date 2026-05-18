@@ -1,4 +1,3 @@
-// 預設關卡資料（當 config.json 與本地快取都讀不到時使用的備用資料）
 const defaultGameData = {
     audioUrl: "./audio/say_the_word_on_beat.mp3",
     levels: [
@@ -22,7 +21,6 @@ const defaultGameData = {
     ]
 };
 
-// 運行時全域變數
 let currentConfig = { audioUrl: "", levels: [] };
 let currentDifficulty = "easy";
 let selectedVersion = 1;
@@ -31,6 +29,11 @@ let imagesAnimationInterval;
 let levelsInterval;
 let audioTrack = new Audio();
 
+let isGameRunning = false;
+let isGamePaused = false;
+let currentLevelCount = 0;
+let activeImgIndex = -1; 
+
 const difficultySettings = {
     easy:  { musicSpeed: 1.0,  beatTime: 320, levelTime: 5250 },
     fast:  { musicSpeed: 1.25, beatTime: 256, levelTime: 4200 },
@@ -38,24 +41,17 @@ const difficultySettings = {
     hell:  { musicSpeed: 2.0,  beatTime: 160, levelTime: 2625 }
 };
 
-// ==================== 核心功能：開機讀取邏輯 (優先讀快取，次要讀 config.json) ====================
 async function initGameData() {
-    // 1. 檢查瀏覽器內部快取 (選項 B 的資料)
     const localSaved = localStorage.getItem("beatGame_local_cache");
-    
     if (localSaved) {
         currentConfig = JSON.parse(localSaved);
-        console.log("🚀 成功從『瀏覽器快取 (LocalStorage)』載入最新的本機場景！");
         applyLoadedData();
     } else {
-        // 2. 如果本機沒快取，則向 GitHub 伺服器讀取 config.json (選項 A 的資料)
         try {
             const response = await fetch('./config.json');
             if (!response.ok) throw new Error('找不到 config.json');
             currentConfig = await response.json();
-            console.log("🎵 成功從『config.json 檔案』載入公開關卡資料！");
         } catch (error) {
-            console.warn("實實唯讀失敗，改用預設原始碼資料。");
             currentConfig = defaultGameData;
         }
         applyLoadedData();
@@ -67,11 +63,9 @@ function applyLoadedData() {
     renderFrontendSelect();
 }
 
-// 收集目前網頁後台填寫的所有關卡與網址資料
 function getPackageDataFromUI() {
     const inputAudio = document.getElementById("custom-audio-url").value.trim();
     const finalAudioUrl = inputAudio ? inputAudio : defaultGameData.audioUrl;
-    
     const newLevels = [];
     const levelBlocks = document.querySelectorAll(".level-edit-block");
     
@@ -79,27 +73,18 @@ function getPackageDataFromUI() {
         const title = block.querySelector(".level-title-input").value.trim() || "未命名關卡";
         const itemRows = block.querySelectorAll(".item-edit-row");
         const items = [];
-        
         itemRows.forEach(row => {
             const text = row.querySelector(".item-text-input").value.trim();
             const url = row.querySelector(".item-url-input").value.trim();
             if(text && url) items.push({ text: text, url: url });
         });
-        
         if(items.length > 0) newLevels.push({ title: title, items: items });
     });
-    
-    return {
-        audioUrl: finalAudioUrl,
-        levels: newLevels.length > 0 ? newLevels : defaultGameData.levels
-    };
+    return { audioUrl: finalAudioUrl, levels: newLevels.length > 0 ? newLevels : defaultGameData.levels };
 }
 
-// ==================== 功能 A：匯出下載 config.json 檔案 ====================
 function exportConfigJson() {
     currentConfig = getPackageDataFromUI();
-    
-    // 下載實體檔案
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentConfig, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
@@ -107,24 +92,18 @@ function exportConfigJson() {
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
-    
-    alert("💾 【config.json 檔案已成功下載！】\n\n請手動將它拖曳上傳至 GitHub 覆蓋舊檔。上傳後約 1 分鐘，全世界的使用者重新整理即可同步看到新關卡囉！");
+    alert("💾 config.json 下載成功，請覆蓋 GitHub 舊檔！");
     toggleAdminView();
 }
 
-// ==================== 功能 B：直接寫入瀏覽器快取 (LocalStorage) ====================
 function saveToLocalStorage() {
     currentConfig = getPackageDataFromUI();
-    
-    // 直接寫入本機抽屜
     localStorage.setItem("beatGame_local_cache", JSON.stringify(currentConfig));
-    
     applyLoadedData();
-    alert("⚡ 【成功寫入瀏覽器快取！】\n\n資料已保存在本機，不需要下載檔案、也不用重傳 GitHub，回到前台就能直接開始玩囉！");
+    alert("⚡ 成功寫入瀏覽器快取，可直接在前台測試！");
     toggleAdminView();
 }
 
-// ==================== UI 渲染與事件 ====================
 function renderFrontendSelect() {
     const gameSelect = document.getElementById("game-select");
     if(!gameSelect) return;
@@ -143,7 +122,6 @@ function renderBackendManager() {
     document.getElementById("custom-audio-url").value = currentConfig.audioUrl === defaultGameData.audioUrl ? "" : currentConfig.audioUrl;
     const manager = document.getElementById("levels-manager");
     manager.innerHTML = "";
-    
     currentConfig.levels.forEach((level, lIdx) => {
         const div = document.createElement("div");
         div.className = "level-edit-block";
@@ -155,9 +133,7 @@ function renderBackendManager() {
             <div class="items-list"></div>
         `;
         const itemsList = div.querySelector(".items-list");
-        level.items.forEach(item => {
-            itemsList.appendChild(createItemRow(item.text, item.url));
-        });
+        level.items.forEach(item => { itemsList.appendChild(createItemRow(item.text, item.url)); });
         const addImgBtn = document.createElement("button");
         addImgBtn.className = "sub-btn";
         addImgBtn.innerText = "➕ 增加照片格子";
@@ -178,14 +154,13 @@ function createItemRow(text, url) {
     return row;
 }
 
-// 遊戲運作核心
 const imageCtnrs = document.querySelectorAll(".images-row > div");
 const levelSection = document.querySelector("#level-section");
 let levelNbr;
 
 function setRandomImagePath(img, textSpan) {
     const currentLevelData = currentConfig.levels[selectedVersion - 1];
-    if(!currentLevelData || !currentLevelData.items || currentLevelData.items.length === 0) return;
+    if(!currentLevelData || currentLevelData.items.length === 0) return;
     const pool = currentLevelData.items;
     const randomIndex = Math.floor(Math.random() * pool.length);
     const selectedItem = pool[randomIndex];
@@ -210,7 +185,6 @@ function initImagesAnimationForLevel() {
 }
 
 function animate8images(generateNewRandomList, nextLevel) {
-    let activeImgIndex = -1;
     const settings = difficultySettings[currentDifficulty];
     imagesAnimationInterval = setInterval(function() {          
         if(activeImgIndex > -1 && activeImgIndex < 8 && imagesList[activeImgIndex]) {
@@ -220,8 +194,7 @@ function animate8images(generateNewRandomList, nextLevel) {
             activeImgIndex++;
             if(imagesList[activeImgIndex]) imagesList[activeImgIndex].div.classList.add("active");
         } else {
-            previousImage = imagesList[activeImgIndex];
-            if(previousImage) previousImage.div.classList.remove("active");
+            activeImgIndex = -1; 
             if(generateNewRandomList) {
                 imagesList.forEach(item => {
                     const ts = item.div.querySelector(".word-card");
@@ -234,41 +207,80 @@ function animate8images(generateNewRandomList, nextLevel) {
     }, settings.beatTime);
 }
 
-function newGame() {
-    stopGame();
-    initImagesAnimationForLevel();
-    levelSection.innerHTML = `<h2>速度等級：<span id="level-nbr">1</span> / 5</h2>`;
-    levelNbr = document.querySelector("#level-nbr");
+function startGame() {
+    isGameRunning = true;
+    updateButtonUI();
     const settings = difficultySettings[currentDifficulty];
     audioTrack.playbackRate = settings.musicSpeed;
-    setTimeout(() => { audioTrack.play().catch(e => console.log("音樂播放受阻")); }, 150);
-    let currentLevel = 0;
+
+    if (!isGamePaused) {
+        imageCtnrs.forEach(div => div.innerHTML = "");
+        initImagesAnimationForLevel();
+        levelSection.innerHTML = `<h2>速度等級：<span id="level-nbr">1</span> / 5</h2>`;
+        levelNbr = document.querySelector("#level-nbr");
+        currentLevelCount = 0;
+        activeImgIndex = -1;
+    }
+    
+    isGamePaused = false;
+    setTimeout(() => { audioTrack.play().catch(e => console.log("音樂播放受阻")); }, 50);
+
+    animate8images(currentLevelCount < 5, currentLevelCount + 1);
     levelsInterval = setInterval(function() {
-        currentLevel++;
-        animate8images(currentLevel < 5, currentLevel+1); 
+        currentLevelCount++;
+        animate8images(currentLevelCount < 5, currentLevelCount + 1); 
     }, settings.levelTime);
 }
 
+function pauseGame() {
+    isGamePaused = true;
+    audioTrack.pause();
+    clearInterval(imagesAnimationInterval);
+    clearInterval(levelsInterval);
+    updateButtonUI();
+}
+
 function stopGame() {
+    isGameRunning = false;
+    isGamePaused = false;
+    currentLevelCount = 0;
+    activeImgIndex = -1;
     try { audioTrack.pause(); audioTrack.currentTime = 0; } catch(e){}
     imageCtnrs.forEach(div => div.innerHTML = "");
     clearInterval(imagesAnimationInterval);
     clearInterval(levelsInterval);
-    if(playBtn) playBtn.innerText = "開始挑戰 Start";
+    levelSection.innerHTML = "準備開始...";
+    updateButtonUI();
 }
 
-const playBtn = document.querySelector("#play-btn");
-if(playBtn) {
-    playBtn.onclick = function() {
-        if(playBtn.innerText === "開始挑戰 Start" || playBtn.innerText === "重新挑戰 New Game") {
-            playBtn.innerText = "停止挑戰 Stop";
-            newGame();
-        } else { stopGame(); }
+function updateButtonUI() {
+    const startBtn = document.getElementById("start-btn");
+    const pauseBtn = document.getElementById("pause-btn");
+    const stopBtn = document.getElementById("stop-btn");
+
+    if (!isGameRunning) {
+        startBtn.classList.remove("hidden");
+        startBtn.innerText = "開始挑戰 Start";
+        pauseBtn.classList.add("hidden");
+        stopBtn.classList.add("hidden");
+    } else if (isGameRunning && !isGamePaused) {
+        startBtn.classList.add("hidden");
+        pauseBtn.classList.remove("hidden");
+        pauseBtn.innerText = "暫停 Pause";
+        stopBtn.classList.remove("hidden");
+    } else if (isGameRunning && isGamePaused) {
+        startBtn.classList.add("hidden");
+        pauseBtn.classList.remove("hidden");
+        pauseBtn.innerText = "繼續 Resume";
+        stopBtn.classList.remove("hidden");
     }
 }
 
+document.getElementById("start-btn").onclick = startGame;
+document.getElementById("pause-btn").onclick = function() { if (!isGamePaused) { pauseGame(); } else { startGame(); } };
+document.getElementById("stop-btn").onclick = stopGame;
 document.getElementById("game-select").onchange = function() { selectedVersion = parseInt(this.value); }
-document.getElementById("difficulty-select").onchange = function() { currentDifficulty = this.value; }
+document.getElementById("difficulty-select").onchange = function() { currentDifficulty = this.value; stopGame(); }
 
 const toggleBtn = document.getElementById("toggle-admin-btn");
 function toggleAdminView() {
@@ -324,17 +336,10 @@ document.getElementById("add-level-btn").onclick = () => {
     manager.appendChild(div);
 }
 
-// 📢 事件綁定：分流處理兩個儲存按鈕
-document.getElementById("save-json-btn").onclick = exportConfigJson; // 選項 A
-document.getElementById("save-local-btn").onclick = saveToLocalStorage; // 選項 B
-
+document.getElementById("save-json-btn").onclick = exportConfigJson;
+document.getElementById("save-local-btn").onclick = saveToLocalStorage;
 document.getElementById("reset-admin-btn").onclick = () => {
-    if(confirm("確定要放棄修改並清除快取、恢復至 config.json 原始檔案設定嗎？")) {
-        localStorage.removeItem("beatGame_local_cache"); // 清除快取
-        initGameData(); // 重新向 config.json 讀取
-        setTimeout(() => renderBackendManager(), 300);
-    }
+    if(confirm("確定要放棄修改嗎？")) { localStorage.removeItem("beatGame_local_cache"); initGameData(); setTimeout(() => renderBackendManager(), 300); }
 }
 
-// 開機初始化
 initGameData();
