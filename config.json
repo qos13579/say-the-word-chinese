@@ -2,40 +2,36 @@
   "audioUrl": "https://files.catbox.moe/9o67ad.mp3",
   "levels": [
     {
-      "title": "第一關：顏色繞口令",
+      "title": "車子篇",
       "items": [
         {
-          "text": "紅紅",
-          "url": "./images/level_1/hong.webp"
+          "text": "汽車",
+          "url": "https://files.catbox.moe/jp1tmq.jpg"
         },
         {
-          "text": "橘紅",
-          "url": "./images/level_1/ju.webp"
+          "text": "機車",
+          "url": "https://files.catbox.moe/ocb6gy.jpg"
         },
         {
-          "text": "綠綠",
-          "url": "./images/level_1/lv.webp"
+          "text": "計程車",
+          "url": "https://files.catbox.moe/n7g5jo.jpg"
         },
         {
-          "text": "黃綠",
-          "url": "./images/level_1/huang.webp"
+          "text": "警車",
+          "url": "https://files.catbox.moe/1it5x8.png"
         }
       ]
     },
     {
-      "title": "第二關：諧音單槓",
+      "title": "諧音篇",
       "items": [
         {
           "text": "鋼彈",
-          "url": "./images/level_2/gundam.webp"
-        },
-        {
-          "text": "乾盪",
-          "url": "./images/level_2/gandang.webp"
+          "url": "https://files.catbox.moe/q1spfn.jpg"
         },
         {
           "text": "單槓",
-          "url": "./images/level_2/dandang.webp"
+          "url": "https://files.catbox.moe/aozgwf.jpg"
         }
       ]
     },
@@ -49,6 +45,56 @@
         {
           "text": "宛汝",
           "url": "https://files.catbox.moe/j9i86g.webp"
+        },
+        {
+          "text": "宛汝",
+          "url": "https://files.catbox.moe/n3yr3n.JPEG"
+        }
+      ]
+    },
+    {
+      "title": "動物篇",
+      "items": [
+        {
+          "text": "貓",
+          "url": "https://files.catbox.moe/7dtood.jpg"
+        },
+        {
+          "text": "狗",
+          "url": "https://files.catbox.moe/x598cs.jpg"
+        },
+        {
+          "text": "豬",
+          "url": "https://files.catbox.moe/0pabmb.png"
+        },
+        {
+          "text": "牛",
+          "url": "https://files.catbox.moe/3f5s4v.jpg"
+        },
+        {
+          "text": "馬",
+          "url": "https://files.catbox.moe/aknwpu.avif"
+        }
+      ]
+    },
+    {
+      "title": "顏色繞口令",
+      "items": [
+        {
+          "text": "紅",
+          "url": "https://files.catbox.moe/l2z6qr.jpg"
+        },
+        {
+          "text": "黃",
+          "url": "https://files.catbox.moe/n610jd.jpg"
+        },
+        {
+          "text": "綠",
+          "url": "https://files.catbox.moe/sgex4p.jpg"
+        },
+        {
+          "text": "藍",
+          "url": "https://files.catbox.moe/uqab8y.jpg"
         }
       ]
     }
