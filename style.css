@@ -10,7 +10,7 @@ body {
   font-family: 'Noto Sans TC', "Microsoft JhengHei", sans-serif !important;
   color: #ffffff !important;
   
-  /* 讓整個遊戲（無論前後台）都完美鎖定在螢幕正中央 */
+  /* 鎖定正中央的核心排版 */
   width: 100vw;
   height: 100vh;
   min-height: 100vh;
@@ -26,11 +26,17 @@ body {
 
 .hidden { display: none !important; }
 
-/* ==================== 2. 右上角前後台切換按鈕 ==================== */
-.nav-btn {
+/* ==================== 2. 右上角切換按鈕區 ==================== */
+.top-nav {
   position: absolute;
   top: 20px;
   right: 20px;
+  display: flex;
+  gap: 10px;
+  z-index: 100;
+}
+
+.nav-btn {
   padding: 10px 20px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -39,17 +45,21 @@ body {
   font-size: 1rem;
   font-weight: bold;
   cursor: pointer;
-  z-index: 100;
   transition: all 0.2s;
 }
 
-.nav-btn:hover {
+.nav-btn:hover, .nav-btn.active {
   background: rgba(255, 255, 255, 0.2);
   border-color: #00f2fe;
   box-shadow: 0 0 10px #00f2fe;
 }
 
-/* ==================== 3. 前台：標題與選單 ==================== */
+.nav-btn.active {
+  background: rgba(0, 242, 254, 0.2) !important;
+  border-color: #00f2fe !important;
+}
+
+/* ==================== 3. 前台：標題與頂部資訊 ==================== */
 #game-header {
   text-align: center;
   margin-bottom: 25px;
@@ -64,7 +74,7 @@ body {
   letter-spacing: 2px;
 }
 
-#game-select-section {
+#game-select-section, #random-info-section .info-text-display {
   font-size: 1.4rem !important; 
   background: rgba(255, 255, 255, 0.05);
   padding: 12px 24px;
@@ -73,7 +83,7 @@ body {
   display: inline-block;
 }
 
-#game-select, #difficulty-select {
+#game-select, #difficulty-select, #marathon-select {
   background: #111827;
   color: #fff;
   border: 1px solid #00f2fe;
@@ -82,6 +92,18 @@ body {
   font-size: 1.3rem !important; 
   cursor: pointer;
   outline: none;
+}
+
+.info-text-display {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.info-text-display #random-current-title {
+  color: #00f2fe;
+  text-shadow: 0 0 10px rgba(0, 242, 254, 0.8);
+  font-size: 1.3rem;
+  margin-right: 15px;
 }
 
 /* 速度等級文字 */
@@ -99,12 +121,12 @@ body {
   font-weight: bold;
 }
 
-/* ==================== 4. 前台：8格圖片區（彈性滿版放大） ==================== */
+/* ==================== 4. 前台：8格圖片區（預設電腦版 4x2 排版） ==================== */
 #images-section {
   position: relative;
   width: 95vw; 
   max-width: 1000px; 
-  padding: 60px; /* 留出空間給四個角落的裝飾圖示 */
+  padding: 60px; 
   display: flex;
   justify-content: center;
   align-items: center;
@@ -125,13 +147,13 @@ body {
   width: 100%;
 }
 
-/* 單個格子彈性維持 1:1 正方形 */
+/* 單個格子維持 1:1 正方形 */
 .images-row > div {
   position: relative;
   flex: 1; 
   max-width: 200px; 
   aspect-ratio: 1 / 1; 
-  width: auto !important; 
+  width: 100% !important; 
   height: auto !important; 
   border: 4px solid rgba(255, 255, 255, 0.15); 
   border-radius: 20px; 
@@ -143,14 +165,12 @@ body {
   align-items: center;
 }
 
-/* 預設沒照片時顯示的節拍數字 */
 .images-row > div span {
   font-size: 3.5rem; 
   color: rgba(255, 255, 255, 0.15);
   font-weight: bold;
 }
 
-/* 拍子砸中時的強烈發光與稍微放大效果 */
 .images-row > div.active {
   border-color: #00f2fe !important;
   box-shadow: 0 0 40px #00f2fe, inset 0 0 20px #00f2fe !important; 
@@ -164,11 +184,10 @@ body {
   left: 0;
   width: 100% !important;
   height: 100% !important;
-  object-fit: cover !important;
+  object-fit: cover !important; 
   z-index: 1;
 }
 
-/* 照片下方的黑色粗體中文字卡 */
 .word-card {
   position: absolute !important;
   bottom: 0;
@@ -199,8 +218,12 @@ body {
 #lightbulb-icon { bottom: -20px; left: -20px; }
 #lightnings-icon { bottom: -20px; right: -20px; }
 
-/* 前台開始挑戰按鈕 */
+/* ==================== 6. 按鈕中央置中控制區 ==================== */
 .control-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
   margin-top: 25px;
   z-index: 10;
 }
@@ -223,7 +246,7 @@ body {
   box-shadow: 0 6px 25px rgba(255, 0, 127, 0.6);
 }
 
-/* ==================== 6. 後台：管理面板容器 ==================== */
+/* ==================== 7. 後台管理面板 ==================== */
 #game-backend {
   width: 90vw;
   max-width: 800px;
@@ -244,7 +267,6 @@ body {
   font-size: 2rem;
 }
 
-/* 後台 Sheet 分頁切換按鈕（Sheet 1 & Sheet 2） */
 .sheet-tabs {
   display: flex;
   gap: 10px;
@@ -271,7 +293,6 @@ body {
   color: #111827;
 }
 
-/* 後台 Sheet 內容區塊 */
 .sheet-content {
   background: #111827;
   padding: 25px;
@@ -305,19 +326,12 @@ body {
   border-color: #00f2fe;
 }
 
-/* 關卡編輯區塊 */
 .level-edit-block {
   background: #1f2937;
   padding: 20px;
   border-radius: 12px;
   margin-bottom: 20px;
   border-left: 6px solid #7f00ff;
-}
-
-.level-edit-block h3 { 
-  margin-bottom: 15px; 
-  color: #fffe03; 
-  font-size: 1.3rem;
 }
 
 .item-edit-row {
@@ -365,7 +379,6 @@ body {
 }
 #add-level-btn:hover { background: rgba(127, 0, 255, 0.1); }
 
-/* 後台底部儲存動作按鈕 */
 .admin-actions {
   display: flex;
   gap: 15px;
@@ -374,14 +387,12 @@ body {
 .save-btn {
   flex: 2;
   padding: 15px;
-  background: linear-gradient(45deg, #00f2fe, #4facfe);
   color: #111827;
   font-weight: bold;
   font-size: 1.3rem;
   border: none;
   border-radius: 50px;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
 }
 .save-btn:hover { transform: scale(1.02); }
 
@@ -400,3 +411,133 @@ body {
 .level-title-input { width: 100% !important; margin-top: 5px; }
 .admin-actions .save-btn { flex: 1 !important; width: auto !important; }
 
+/* ==================== 📢 8. 全新升級：手機模式自動辨識優化 ==================== */
+@media screen and (max-width: 768px) {
+  body {
+    /* 手機直立螢幕改用垂直允許捲動，防止內容溢出擠壓 */
+    overflow-y: auto;
+    padding: 100px 10px 40px 10px; /* 留出頂部給右上角按鈕的空間 */
+    height: auto;
+  }
+
+  /* 縮小手機版的標題字體與間距 */
+  #game-header h1 {
+    font-size: 1.8rem !important; 
+    margin-bottom: 10px;
+  }
+
+  /* 縮小下拉選單的外殼與字體大小，避免爆版 */
+  #game-select-section, #random-info-section .info-text-display {
+    font-size: 0.95rem !important;
+    padding: 8px 16px;
+    display: flex;
+    flex-direction: column; /* 直立排版選單 */
+    align-items: center;
+    gap: 8px;
+    border-radius: 15px;
+  }
+
+  #game-select, #difficulty-select, #marathon-select {
+    font-size: 0.95rem !important;
+    padding: 4px 10px;
+    width: 100%; /* 寬度填滿 */
+    margin-left: 0 !important;
+  }
+  
+  .info-text-display #random-current-title {
+    font-size: 1rem;
+    margin-right: 0;
+  }
+
+  #level-section h2 {
+    font-size: 1.3rem;
+  }
+
+  /* 📢 核心修正：將 8 格圖片區外殼間距縮小 */
+  #images-section {
+    padding: 20px;
+    width: 100vw;
+  }
+
+  /* 關鍵！原本 index.html 裡是「兩行 images-row」，手機版我們解除橫向限制 */
+  .images {
+    gap: 15px;
+  }
+
+  /* 📢 核心修正：打破 4x2 限制！在手機版中改為每行「自動分配 2 格」，兩行就會變成 4 行 (2x4 排版) */
+  .images-row {
+    flex-wrap: wrap; /* 允許方格自動折行 */
+    gap: 15px;
+    justify-content: center;
+  }
+
+  /* 重新計算手機版下方格的大小：確保不論什麼手機，2格並排都能展現「最大正方形」 */
+  .images-row > div {
+    /* 扣除間距後，寬度剛好分給兩格 (約 45%) */
+    flex: none;
+    width: calc(50% - 10px) !important; 
+    max-width: 160px; /* 限制最大寬度，防止在大螢幕手機上過大 */
+    aspect-ratio: 1 / 1 !important; /* 強制保證絕對是正方形，不壓扁照片 */
+    border-width: 3px; /* 稍微縮小邊框 */
+    border-radius: 12px;
+  }
+
+  /* 縮小沒照片時的節拍數字 */
+  .images-row > div span {
+    font-size: 2.2rem;
+  }
+
+  /* 縮小照片下方的黑色中文字卡字體，避免字太多折行破圖 */
+  .word-card {
+    font-size: 1.1rem !important;
+    padding: 4px 0;
+  }
+
+  /* 隱藏或縮小角落裝飾，避免擋到方格點擊 */
+  .images-section__around-icon {
+    width: 35px;
+    height: 35px;
+    opacity: 0.3;
+  }
+  #exclamation-mark-icon { top: -10px; left: 0px; }
+  #speaker-icon { top: -10px; right: 0px; }
+  #lightbulb-icon { bottom: -10px; left: 0px; }
+  #lightnings-icon { bottom: -10px; right: 0px; }
+
+  /* 縮小主開始按鈕，更適合手指點擊 */
+  #play-btn {
+    padding: 12px 40px;
+    font-size: 1.3rem;
+    width: 80%; /* 讓按鈕在手機上好點 */
+  }
+
+  /* 右上角切換按鈕縮小，防止擋到遊戲內容 */
+  .top-nav {
+    position: fixed; /* 固定在頂部 */
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    justify-content: center;
+    width: calc(100% - 20px);
+  }
+  .nav-btn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    flex: 1;
+    text-align: center;
+  }
+  
+  /* 後台管理面板手機版適配 */
+  #game-backend {
+    padding: 15px;
+    margin-top: 40px;
+    max-height: 75vh;
+  }
+  #game-backend h2 { font-size: 1.4rem; }
+  .tab-btn { font-size: 0.9rem; padding: 8px; }
+  .sheet-content { padding: 15px; }
+  .item-edit-row { flex-direction: column; gap: 8px; align-items: stretch; background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; }
+  .item-text-input { width: 100%; }
+  .del-btn { align-self: flex-end; }
+  .admin-actions { flex-direction: column; }
+}
