@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Say the Word on Beat - 雙功能後台版</title>
+  <title>Say the Word on Beat - 終極進階雙模式版</title>
   <link rel="shortcut icon" href="./images/speaker.webp" type="image/x-icon">
   <link rel="stylesheet" href="./style.css">
   <link rel="preconnect" href="https://googleapis.com">
@@ -12,7 +12,7 @@
 </head>
 <body>
 
-  <!-- 右上角頂部導覽列 -->
+  <!-- 右上角頂部導覽列：切換遊戲模式與後台 -->
   <div class="top-nav">
     <button id="mode-custom-btn" class="nav-btn active">🎮 自訂關卡模式</button>
     <button id="mode-random-btn" class="nav-btn">🎲 隨機挑戰模式</button>
@@ -24,7 +24,7 @@
     <header id="game-header">
       <h1>🎵 Say The Word On Beat 🎵</h1>
       
-      <!-- 傳統自訂選單區 -->
+      <!-- 區塊 A：傳統自訂選單區 -->
       <div id="game-select-section">
         <label for="game-select">主題：</label>
         <select id="game-select">
@@ -40,7 +40,7 @@
         </select>
       </div>
 
-      <!-- 隨機模式專用資訊區（與傳統選單區外觀完全一致） -->
+      <!-- 區塊 B：隨機模式專用資訊區 -->
       <div id="random-info-section" class="hidden">
         <div class="info-text-display">
           <span>主題：</span>
@@ -48,7 +48,9 @@
           
           <label for="marathon-select" style="margin-left: 20px;">挑戰難度：</label>
           <select id="marathon-select">
-            <option value="easy_fast" selected>🟢 簡易版 + 🟡 加速版</option>
+            <!-- 📢 已新增：簡易版 + 簡易版 選項 -->
+            <option value="easy_easy" selected>🟢 簡易版 + 🟢 簡易版</option>
+            <option value="easy_fast">🟢 簡易版 + 🟡 加速版</option>
             <option value="fast_speed">🟡 加速版 + 🟠 急速版</option>
             <option value="speed_hell">🟠 急速版 + 🔴 地獄版</option>
           </select>
@@ -56,8 +58,10 @@
       </div>
     </header>
     
+    <!-- 速度等級與過關提示顯示區 -->
     <section id="level-section">準備開始...</section>
     
+    <!-- 8 格遊戲圖片核心區 -->
     <section id="images-section">
       <img src="./images/exclamation-mark.webp" class="images-section__around-icon" alt="Exclamation mark" id="exclamation-mark-icon">
       <img src="./images/speaker.webp" class="images-section__around-icon" alt="Speaker" id="speaker-icon">
@@ -80,10 +84,9 @@
       </div>
     </section>
     
-    <!-- 📢 控制按鈕控制區：新增「重頭開始」按鈕，並排並完美置中 -->
+    <!-- 控制按鈕 -->
     <div class="control-area">
       <button id="play-btn">開始挑戰 Start</button>
-      <button id="restart-all-btn" class="hidden">🔄 重頭開始 Stage 1</button>
     </div>
   </main>
 
@@ -96,6 +99,7 @@
       <button id="tab-images" class="tab-btn">🖼️ Sheet 2: 關卡與照片 (Images)</button>
     </div>
 
+    <!-- Sheet 1: 音樂設定 -->
     <div id="sheet-content-audio" class="sheet-content">
       <div class="input-group">
         <label>Catbox 背景音樂網址 (.mp3)：</label>
@@ -103,18 +107,20 @@
       </div>
     </div>
 
+    <!-- Sheet 2: 關卡與照片 -->
     <div id="sheet-content-images" class="sheet-content hidden">
-      <div id="levels-manager"></div>
+      <div id="levels-manager">
+        <!-- 由 JS 生成關卡編輯區 -->
+      </div>
       <button id="add-level-btn" class="sub-btn">➕ 新增一個全新主題關卡</button>
     </div>
 
-    <div class="admin-actions" style="display: flex; flex-direction: column; gap: 10px;">
-      <div style="display: flex; gap: 15px; width: 100%;">
-        <button id="save-json-btn" class="save-btn" style="background: linear-gradient(45deg, #00f2fe, #4facfe);">💾 匯出下載 config.json (選項 A)</button>
-        <button id="save-local-btn" class="save-btn" style="background: linear-gradient(45deg, #10b981, #059669); color: white;">⚡ 寫入瀏覽器快取 (選項 B)</button>
-      </div>
-      <button id="reset-admin-btn" class="reset-data-btn" style="width: 100%;">🔄 放棄修改 / 恢復設定</button>
+    <!-- 後台雙重儲存按鈕控制區 -->
+    <div class="admin-actions" style="display: flex; gap: 15px; width: 100%;">
+      <button id="save-json-btn" class="save-btn" style="background: linear-gradient(45deg, #00f2fe, #4facfe);">💾 匯出下載 config.json (選項 A)</button>
+      <button id="save-local-btn" class="save-btn" style="background: linear-gradient(45deg, #10b981, #059669); color: white;">⚡ 寫入瀏覽器快取 (選項 B)</button>
     </div>
+    <button id="reset-admin-btn" class="reset-data-btn" style="width: 100%; margin-top: 10px;">🔄 放棄修改 / 恢復設定</button>
   </main>
 
   <script src="./script.js"></script>
