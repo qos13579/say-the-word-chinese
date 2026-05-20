@@ -3,6 +3,7 @@
   "levels": [
     {
       "title": "車子篇",
+      "showText": false,
       "items": [
         {
           "text": "汽車",
@@ -24,6 +25,7 @@
     },
     {
       "title": "諧音篇",
+      "showText": false,
       "items": [
         {
           "text": "鋼彈",
@@ -37,6 +39,7 @@
     },
     {
       "title": "冠銘宛汝",
+      "showText": false,
       "items": [
         {
           "text": "冠銘",
@@ -58,6 +61,7 @@
     },
     {
       "title": "動物篇",
+      "showText": false,
       "items": [
         {
           "text": "貓",
@@ -83,6 +87,7 @@
     },
     {
       "title": "顏色繞口令",
+      "showText": false,
       "items": [
         {
           "text": "紅",
