@@ -6,17 +6,25 @@
   <title>Say the Word on Beat - 雙功能後台版</title>
   <link rel="shortcut icon" href="./images/speaker.webp" type="image/x-icon">
   <link rel="stylesheet" href="./style.css">
-  <link href="https://googleapis.com" rel="stylesheet">
+  <link rel="preconnect" href="https://googleapis.com">
+  <link rel="preconnect" href="https://gstatic.com" crossorigin>
+  <link href="https://googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
 
-  <!-- 右上角後台切換按鈕 -->
-  <button id="toggle-admin-btn" class="nav-btn">⚙️ 進入後台設定</button>
+  <!-- 右上角頂部導覽列 -->
+  <div class="top-nav">
+    <button id="mode-custom-btn" class="nav-btn active">🎮 自訂關卡模式</button>
+    <button id="mode-random-btn" class="nav-btn">🎲 隨機挑戰模式</button>
+    <button id="toggle-admin-btn" class="nav-btn">⚙️ 進入後台設定</button>
+  </div>
 
   <!-- ==================== 前台：遊戲主畫面 ==================== -->
   <main id="game-frontend">
     <header id="game-header">
       <h1>🎵 Say The Word On Beat 🎵</h1>
+      
+      <!-- 傳統自訂選單區 -->
       <div id="game-select-section">
         <label for="game-select">主題：</label>
         <select id="game-select">
@@ -30,6 +38,21 @@
           <option value="speed">🟠 急速版 (1.5x)</option>
           <option value="hell">🔴 地獄版 (2.0x)</option>
         </select>
+      </div>
+
+      <!-- 隨機模式專用資訊區（與傳統選單區外觀完全一致） -->
+      <div id="random-info-section" class="hidden">
+        <div class="info-text-display">
+          <span>主題：</span>
+          <span id="random-current-title">載入中...</span>
+          
+          <label for="marathon-select" style="margin-left: 20px;">挑戰難度：</label>
+          <select id="marathon-select">
+            <option value="easy_fast" selected>🟢 簡易版 + 🟡 加速版</option>
+            <option value="fast_speed">🟡 加速版 + 🟠 急速版</option>
+            <option value="speed_hell">🟠 急速版 + 🔴 地獄版</option>
+          </select>
+        </div>
       </div>
     </header>
     
@@ -57,8 +80,10 @@
       </div>
     </section>
     
+    <!-- 📢 控制按鈕控制區：新增「重頭開始」按鈕，並排並完美置中 -->
     <div class="control-area">
       <button id="play-btn">開始挑戰 Start</button>
+      <button id="restart-all-btn" class="hidden">🔄 重頭開始 Stage 1</button>
     </div>
   </main>
 
@@ -71,7 +96,6 @@
       <button id="tab-images" class="tab-btn">🖼️ Sheet 2: 關卡與照片 (Images)</button>
     </div>
 
-    <!-- Sheet 1: 音樂設定 -->
     <div id="sheet-content-audio" class="sheet-content">
       <div class="input-group">
         <label>Catbox 背景音樂網址 (.mp3)：</label>
@@ -79,15 +103,11 @@
       </div>
     </div>
 
-    <!-- Sheet 2: 關卡與照片 -->
     <div id="sheet-content-images" class="sheet-content hidden">
-      <div id="levels-manager">
-        <!-- 由 JS 生成關卡編輯區 -->
-      </div>
+      <div id="levels-manager"></div>
       <button id="add-level-btn" class="sub-btn">➕ 新增一個全新主題關卡</button>
     </div>
 
-    <!-- 📢 核心更新：後台雙重儲存按鈕控制區 -->
     <div class="admin-actions" style="display: flex; flex-direction: column; gap: 10px;">
       <div style="display: flex; gap: 15px; width: 100%;">
         <button id="save-json-btn" class="save-btn" style="background: linear-gradient(45deg, #00f2fe, #4facfe);">💾 匯出下載 config.json (選項 A)</button>
