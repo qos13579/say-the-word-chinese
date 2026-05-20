@@ -1,4 +1,4 @@
-// 預設關卡資料（當 config.json 與本地快取都讀不到時使用的安全備份資料，預設皆打勾 true）
+// 預設關卡資料（當 config.json 與本地快取都讀不到時使用的安全備份資料）
 const defaultGameData = {
     audioUrl: "https://catbox.moe",
     levels: [
@@ -27,7 +27,7 @@ const defaultGameData = {
 let currentConfig = { audioUrl: "", levels: [] };
 let gameMode = "custom"; // 模式切換: "custom" 或是 "random"
 let currentDifficulty = "easy"; // 自訂模式下的難度
-let selectedMarathonMode = "easy_fast"; // 隨機模式下的複合難度選單
+let selectedMarathonMode = "easy_easy"; // 📢 預設改為全新隨機模式選單：easy_easy
 
 let selectedVersion = 1; // 自訂模式當前關卡 (1-based)
 let randomActiveLevelIdx = 0; // 隨機模式當前抽中的關卡索引 (0-based)
@@ -52,10 +52,12 @@ const difficultySettings = {
 };
 
 // 馬拉松兩種困難度對應
+// 📢 【核心更新】已加入 easy_easy 映射對照
 const marathonDifficultyMap = {
-    "easy_fast": { part1: "easy", part2: "fast" },
-    "fast_speed": { part1: "fast", part2: "speed" },
-    "speed_hell": { part1: "speed", part2: "hell" }
+    "easy_easy":   { part1: "easy",  part2: "easy" },
+    "easy_fast":   { part1: "easy",  part2: "fast" },
+    "fast_speed":  { part1: "fast",  part2: "speed" },
+    "speed_hell":  { part1: "speed", part2: "hell" }
 };
 
 // ==================== 核心功能：開機讀取邏輯 ====================
@@ -124,13 +126,11 @@ function setRandomImagePath(img, textSpan) {
     img.alt = selectedItem.text;
     textSpan.innerText = selectedItem.text;
     
-    // 📢 【核心更新】根據後台該關卡的打勾狀態（showText），決定前台是否出現字卡
-    // 如果 showText 欄位不存在，我們預設為 true（要顯示）
     const showText = (currentLevelData.showText !== undefined) ? currentLevelData.showText : true;
     if (showText) {
-        textSpan.classList.remove("hidden"); // 顯示字卡
+        textSpan.classList.remove("hidden");
     } else {
-        textSpan.classList.add("hidden");    // 隱藏字卡
+        textSpan.classList.add("hidden");
     }
 }
 
@@ -259,111 +259,7 @@ function stopGame(isInternalTransition = false) {
     }
 }
 
-// ==================== 後台資料與 UI 互動事件 ====================
-// 📢 【核心更新】收集後台 UI 的打勾狀態並打包
-function getPackageDataFromUI() {
-    const inputAudio = document.getElementById("custom-audio-url").value.trim();
-    const finalAudioUrl = inputAudio ? inputAudio : defaultGameData.audioUrl;
-    const newLevels = [];
-    const levelBlocks = document.querySelectorAll(".level-edit-block");
-    
-    levelBlocks.forEach(block => {
-        const title = block.querySelector(".level-title-input").value.trim() || "未命名關卡";
-        // 抓取打勾狀態
-        const showText = block.querySelector(".level-text-toggle").checked;
-        
-        const itemRows = block.querySelectorAll(".item-edit-row");
-        const items = [];
-        itemRows.forEach(row => {
-            const text = row.querySelector(".item-text-input").value.trim();
-            const url = row.querySelector(".item-url-input").value.trim();
-            if(text && url) items.push({ text: text, url: url });
-        });
-        if(items.length > 0) newLevels.push({ title: title, showText: showText, items: items });
-    });
-    return { audioUrl: finalAudioUrl, levels: newLevels.length > 0 ? newLevels : defaultGameData.levels };
-}
-
-function exportConfigJson() {
-    currentConfig = getPackageDataFromUI();
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentConfig, null, 2));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", "config.json");
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
-}
-
-function saveToLocalStorage() {
-    currentConfig = getPackageDataFromUI();
-    localStorage.setItem("beatGame_local_cache", JSON.stringify(currentConfig));
-    applyLoadedData();
-    alert("⚡ 【成功寫入瀏覽器快取！】");
-}
-
-function renderFrontendSelect() {
-    const gameSelect = document.getElementById("game-select");
-    if(!gameSelect) return;
-    gameSelect.innerHTML = "";
-    currentConfig.levels.forEach((level, index) => {
-        const opt = document.createElement("option");
-        opt.value = index + 1;
-        opt.innerText = level.title;
-        if(selectedVersion === index + 1) opt.selected = true;
-        gameSelect.appendChild(opt);
-    });
-    if(currentConfig.levels.length === 0) selectedVersion = 1;
-}
-
-// 📢 【核心更新】動態生成後台管理介面時，為每個關卡塞入「對拍中文字幕開關」
-function renderBackendManager() {
-    document.getElementById("custom-audio-url").value = currentConfig.audioUrl === defaultGameData.audioUrl ? "" : currentConfig.audioUrl;
-    const manager = document.getElementById("levels-manager");
-    manager.innerHTML = "";
-    currentConfig.levels.forEach((level) => {
-        // 判斷原資料是否有打勾設定，預設為 true (要勾選)
-        const isChecked = (level.showText !== undefined) ? level.showText : true;
-        
-        const div = document.createElement("div");
-        div.className = "level-edit-block";
-        div.innerHTML = `
-            <div class="input-group" style="margin-bottom:10px;">
-                <label>主題關卡名稱：</label>
-                <input type="text" class="level-title-input" value="${level.title}">
-            </div>
-            <!-- 新增打勾功能選項 -->
-            <div style="margin-bottom:15px; display:flex; align-items:center; gap:8px;">
-                <input type="checkbox" class="level-text-toggle" style="width:18px; height:18px; cursor:pointer;" ${isChecked ? 'checked' : ''}>
-                <label style="color:#fffe03; font-weight:bold; font-size:1rem; cursor:pointer;" onclick="this.previousElementSibling.click()">顯示對拍中文字卡（不勾選則挑戰時隱藏中文字幕）</label>
-            </div>
-            <div class="items-list"></div>
-        `;
-        const itemsList = div.querySelector(".items-list");
-        level.items.forEach(item => {
-            itemsList.appendChild(createItemRow(item.text, item.url));
-        });
-        const addImgBtn = document.createElement("button");
-        addImgBtn.className = "sub-btn";
-        addImgBtn.innerText = "➕ 增加照片格子";
-        addImgBtn.onclick = () => itemsList.appendChild(createItemRow("", ""));
-        div.appendChild(addImgBtn);
-        manager.appendChild(div);
-    });
-}
-
-function createItemRow(text, url) {
-    const row = document.createElement("div");
-    row.className = "item-edit-row";
-    row.innerHTML = `
-        <input type="text" class="item-text-input" placeholder="對拍中文字" value="${text}">
-        <input type="text" class="item-url-input" placeholder="Catbox 照片網址" value="${url}">
-        <button class="del-btn" onclick="this.parentElement.remove()">❌</button>
-    `;
-    return row;
-}
-
-// ==================== 模式切換與密碼控制監聽 ====================
+// ==================== 事件監聽與按鈕綁定 ====================
 const playBtn = document.querySelector("#play-btn");
 
 if(playBtn) {
@@ -437,6 +333,105 @@ toggleBtn.onclick = function() {
     }
 };
 
+// ==================== 後台與 LocalStorage 設定 ====================
+function getPackageDataFromUI() {
+    const inputAudio = document.getElementById("custom-audio-url").value.trim();
+    const finalAudioUrl = inputAudio ? inputAudio : defaultGameData.audioUrl;
+    const newLevels = [];
+    const levelBlocks = document.querySelectorAll(".level-edit-block");
+    
+    levelBlocks.forEach(block => {
+        const title = block.querySelector(".level-title-input").value.trim() || "未命名關卡";
+        const showText = block.querySelector(".level-text-toggle").checked;
+        
+        const itemRows = block.querySelectorAll(".item-edit-row");
+        const items = [];
+        itemRows.forEach(row => {
+            const text = row.querySelector(".item-text-input").value.trim();
+            const url = row.querySelector(".item-url-input").value.trim();
+            if(text && url) items.push({ text: text, url: url });
+        });
+        if(items.length > 0) newLevels.push({ title: title, showText: showText, items: items });
+    });
+    return { audioUrl: finalAudioUrl, levels: newLevels.length > 0 ? newLevels : defaultGameData.levels };
+}
+
+function exportConfigJson() {
+    currentConfig = getPackageDataFromUI();
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentConfig, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", "config.json");
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+}
+
+function saveToLocalStorage() {
+    currentConfig = getPackageDataFromUI();
+    localStorage.setItem("beatGame_local_cache", JSON.stringify(currentConfig));
+    applyLoadedData();
+    alert("⚡ 【成功寫入瀏覽器快取！】");
+}
+
+function renderFrontendSelect() {
+    const gameSelect = document.getElementById("game-select");
+    if(!gameSelect) return;
+    gameSelect.innerHTML = "";
+    currentConfig.levels.forEach((level, index) => {
+        const opt = document.createElement("option");
+        opt.value = index + 1;
+        opt.innerText = level.title;
+        if(selectedVersion === index + 1) opt.selected = true;
+        gameSelect.appendChild(opt);
+    });
+    if(currentConfig.levels.length === 0) selectedVersion = 1;
+}
+
+function renderBackendManager() {
+    document.getElementById("custom-audio-url").value = currentConfig.audioUrl === defaultGameData.audioUrl ? "" : currentConfig.audioUrl;
+    const manager = document.getElementById("levels-manager");
+    manager.innerHTML = "";
+    currentConfig.levels.forEach((level) => {
+        const isChecked = (level.showText !== undefined) ? level.showText : true;
+        
+        const div = document.createElement("div");
+        div.className = "level-edit-block";
+        div.innerHTML = `
+            <div class="input-group" style="margin-bottom:10px;">
+                <label>主題關卡名稱：</label>
+                <input type="text" class="level-title-input" value="${level.title}">
+            </div>
+            <div style="margin-bottom:15px; display:flex; align-items:center; gap:8px;">
+                <input type="checkbox" class="level-text-toggle" style="width:18px; height:18px; cursor:pointer;" ${isChecked ? 'checked' : ''}>
+                <label style="color:#fffe03; font-weight:bold; font-size:1rem; cursor:pointer;" onclick="this.previousElementSibling.click()">顯示對拍中文字卡（不勾選則挑戰時隱藏中文字幕）</label>
+            </div>
+            <div class="items-list"></div>
+        `;
+        const itemsList = div.querySelector(".items-list");
+        level.items.forEach(item => {
+            itemsList.appendChild(createItemRow(item.text, item.url));
+        });
+        const addImgBtn = document.createElement("button");
+        addImgBtn.className = "sub-btn";
+        addImgBtn.innerText = "➕ 增加照片格子";
+        addImgBtn.onclick = () => itemsList.appendChild(createItemRow("", ""));
+        div.appendChild(addImgBtn);
+        manager.appendChild(div);
+    });
+}
+
+function createItemRow(text, url) {
+    const row = document.createElement("div");
+    row.className = "item-edit-row";
+    row.innerHTML = `
+        <input type="text" class="item-text-input" placeholder="對拍中文字" value="${text}">
+        <input type="text" class="item-url-input" placeholder="Catbox 照片網址" value="${url}">
+        <button class="del-btn" onclick="this.parentElement.remove()">❌</button>
+    `;
+    return row;
+}
+
 document.getElementById("tab-audio").onclick = function() {
     this.classList.add("active");
     document.getElementById("tab-images").classList.remove("active");
@@ -450,7 +445,6 @@ document.getElementById("tab-images").onclick = function() {
     document.getElementById("sheet-content-audio").classList.add("hidden");
 }
 
-// 📢 【核心更新】新增全新主題關卡時，預設給予一組乾淨的預設 HTML 與勾選狀態
 document.getElementById("add-level-btn").onclick = () => {
     const manager = document.getElementById("levels-manager");
     const lIdx = manager.querySelectorAll(".level-edit-block").length + 1;
